@@ -80,6 +80,13 @@ class BST {
     container.appendChild(this.root);
     this.updateDom(this.root, this.root.left);
     this.updateDom(this.root, this.root.right);
+    let current = this.root;
+    while (current.left) current = current.left;
+    const nodeOffset = getOffset(current);
+    if (nodeOffset.left < 0) {
+      containerLeft += nodeWidth;
+      return this.render();
+    }
   }
   updateDom(parent, node) {
     if (!parent) return;
@@ -87,23 +94,18 @@ class BST {
     if (!this.levels[node.depth]) {
       this.levels[node.depth] = this.levelOrderTraversal(node.depth);
     }
-    let siblingNodes = this.levels[node.depth];
-    let totalSiblingNodes = 2 ** node.depth;
-    let segment = contanerWidth / totalSiblingNodes;
-    let actualTotalSiblingNodes = siblingNodes.filter((n) => n).length;
+    const siblingNodes = this.levels[node.depth];
+    const totalSiblingNodes = 2 ** node.depth;
+    const segment = contanerWidth / totalSiblingNodes;
     const i = siblingNodes.indexOf(node);
-    let position = segment * i + segment / 2;
-    let parentOffset = getOffset(parent);
-    let parentPosition = parentOffset.left + parentOffset.width / 2;
+    const position = segment * i + segment / 2;
+    const parentOffset = getOffset(parent);
+    const parentPosition = parentOffset.left + parentOffset.width / 2;
 
     if (node.side === "left") {
-      node.style.left =
-        actualTotalSiblingNodes === 1
-          ? 0
-          : (parentPosition - position) * -1 + "px";
+      node.style.left = (parentPosition - position) * -1 + "px";
     } else {
-      node.style.right =
-        actualTotalSiblingNodes === 1 ? 0 : parentPosition - position + "px";
+      node.style.right = parentPosition - position + "px";
     }
     parent.appendChild(node);
     const leftNode = siblingNodes[i - 1];
